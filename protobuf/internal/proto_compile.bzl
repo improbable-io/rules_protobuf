@@ -60,6 +60,9 @@ def _get_offset_path(root, path):
   if root == ".":
     return path
 
+  if path == root:
+      return "."
+
   # "external/foobar/file.proto" --> "file.proto"
   if path.startswith(root):
     start = len(root)
@@ -221,7 +224,7 @@ def _build_grpc_invocation(run, builder):
                            builder)
 
 
-def _get_mappings(files, label, prefix):
+def _get_mappings(execdir, files, label, prefix):
   """For a set of files that belong the the given context label, create a mapping to the given prefix."""
   mappings = {}
   for file in files:
@@ -232,6 +235,8 @@ def _get_mappings(files, label, prefix):
     if src.startswith("../"):
       parts = src.split("/")
       src = "/".join(parts[2:])
+    else:
+      src = _get_offset_path(execdir, src)
     dst = [prefix]
     if label.package:
       dst.append(label.package)
@@ -257,7 +262,7 @@ def _build_importmappings(run, builder):
   # Build the list of import mappings.  Start with any configured on
   # the rule by attributes.
   mappings = run.lang.importmap + run.data.importmap
-  mappings += _get_mappings(run.data.protos, run.data.label, go_prefix)
+  mappings += _get_mappings(run.data.execdir, run.data.protos, run.data.label, go_prefix)
 
   # Then add in the transitive set from dependent rules.
   for unit in run.data.transitive_units:
@@ -355,7 +360,7 @@ def _compile(ctx, unit):
   execdir = unit.data.execdir
 
   protoc = _get_offset_path(execdir, unit.compiler.path)
-  imports = ["--proto_path=" + i for i in unit.imports]
+  imports = ["--proto_path=" + _get_offset_path(execdir, i) for i in unit.imports]
   srcs = [_get_offset_path(execdir, p.path) for p in unit.data.protos]
   protoc_cmd = [protoc] + list(unit.args) + imports + srcs
   manifest = [f.short_path for f in unit.outputs]
@@ -426,6 +431,10 @@ def _proto_compile_impl(ctx):
   # we'll use for the protoc invocation.  Usually this is '.', but if
   # not, its 'external/WORKSPACE'
   execdir = _get_external_root(ctx)
+  if execdir == ".":
+      external_root = execdir
+      if ctx.attr.root:
+        execdir = ctx.attr.root
 
   # Propogate proto deps compilation units.
   transitive_units = []
@@ -453,6 +462,7 @@ def _proto_compile_impl(ctx):
     with_grpc = ctx.attr.with_grpc,
     transitive_units = transitive_units,
     output_to_workspace = ctx.attr.output_to_workspace,
+    root = execdir,
   )
 
   #print("transitive_units: %s" % transitive_units)
@@ -460,7 +470,7 @@ def _proto_compile_impl(ctx):
   # Mutable global state to be populated by the classes.
   builder = {
     "args": [], # list of string
-    "imports": ctx.attr.imports + ["."],
+    "imports": ctx.attr.imports + [execdir],
     "inputs": ctx.files.protos + ctx.files.inputs,
     "outputs": [],
   }
