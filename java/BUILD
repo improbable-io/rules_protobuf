@@ -94,7 +94,7 @@ genrule(
     cmd = " && ".join([
         "IN=$$(pwd)/$(SRCS)",
         "OUT=$$(pwd)/$@",
-        "TMP=$$(mktemp -d $${TMPDIR:-/tmp}/genrule.XXXXXXXXXX)",
+        "TMP=$$(mktemp -d /tmp/genrule.XXXXXXXXXX)",
         "cd $$TMP",
         "cp $$IN $$OUT",
         "rm -rf $$TMP",
