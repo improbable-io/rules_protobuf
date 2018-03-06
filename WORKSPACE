@@ -8,15 +8,17 @@ load("//protobuf:rules.bzl", "github_archive")
 
 github_archive(
     name = "io_bazel_rules_go",
-    commit = "ae70411645c171b2056d38a6a959e491949f9afe",  # v0.5.4
+    commit = "6d900bc95ae678bec5c91031b8e987957d2a7f93",  # post-0.7.0 (includes important cross-compile fixes)
     org = "bazelbuild",
     repo = "rules_go",
-    sha256 = "ae91c1dfe9b943500f7486f2bb94b9887f881c7709474f3e170c95d414f79698",
+    sha256 = "d36baba631b29151434726eb204fa93ce8793b5f8ef96da452f382d77bd95c93",
 )
 
-load("@io_bazel_rules_go//go:def.bzl", "go_repositories")
+load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
 
-go_repositories()
+go_rules_dependencies()
+
+go_register_toolchains()
 
 # ================================================================
 # closure js_proto_library support requires rules_closure
@@ -40,10 +42,10 @@ closure_repositories()
 
 github_archive(
     name = "io_bazel_rules_dotnet",
-    commit = "ebc7c1cb61d45bd57042c60b6bfabdfff4979466",
+    commit = "1a6ca96fe05bca83782464453ac4657fb8ed8379",
     org = "bazelbuild",
     repo = "rules_dotnet",
-    sha256 = "b50c4a1133dfa834fab5ff7596e67866f67e252f76649543adca5f0c3fdec140",
+    sha256 = "0f7d7f79bf543fdcce9ffebf422df2f858eae63367869b441d4d1005f279fa1f",
 )
 
 load("@io_bazel_rules_dotnet//dotnet:csharp.bzl", "csharp_repositories")
@@ -57,11 +59,11 @@ csharp_repositories()
 
 github_archive(
     name = "org_pubref_rules_node",
-    # This commit is *not* on master but rather https://github.com/pubref/rules_node/pull/35.
-    commit = "2b4b38dcb76eba98419c932c98bd22fe6e322c9f",
+    # This commit is *not* on master but rather https://github.com/pubref/rules_node/pull/41.
+    commit = "f990afc34168f81b034e642aa0dcb56320ed3988",
     org = "pubref",
     repo = "rules_node",
-    sha256 = "64e30037b931fb01c5c5f2e38477bdd234ba95b51138153c13bec8d156982978",
+    sha256 = "a367add895f201595b618611dcf7bdd7723ffeed88c4dc327e30668d19c9d1e2",
 )
 
 load("@org_pubref_rules_node//node:rules.bzl", "node_repositories", "yarn_modules")
