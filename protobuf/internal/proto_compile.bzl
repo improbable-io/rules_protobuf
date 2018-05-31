@@ -257,7 +257,7 @@ def _build_grpc_invocation(run, builder):
                            builder)
 
 
-def _get_mappings(execdir, files, label, go_prefix):
+def _get_mappings(root, files, label, go_prefix):
   mappings = {}
   for file in files:
     src = file.short_path
@@ -267,8 +267,10 @@ def _get_mappings(execdir, files, label, go_prefix):
     if src.startswith("../"):
       parts = src.split("/")
       src = "/".join(parts[2:])
-    else:
-      src = _get_offset_path(execdir, src)
+
+    prefix = root + "/"
+    if src.startswith(prefix):
+      src = src[len(prefix):]
 
     dst = [go_prefix]
     if label.package:
@@ -295,7 +297,7 @@ def _build_importmappings(run, builder):
   # Build the list of import mappings.  Start with any configured on
   # the rule by attributes.
   mappings = run.lang.importmap + run.data.importmap
-  mappings += _get_mappings(run.data.execdir, run.data.protos, run.data.label, go_prefix)
+  mappings += _get_mappings(ctx.attr.root, run.data.protos, run.data.label, go_prefix)
 
   # Then add in the transitive set from dependent rules.
   for unit in run.data.transitive_units:
@@ -503,9 +505,11 @@ def _proto_compile_impl(ctx):
   # not, its 'external/WORKSPACE'
   execdir = _get_external_root(ctx)
   if execdir == ".":
-      external_root = execdir
-      if ctx.attr.root:
-        execdir = ctx.attr.root
+    if ctx.attr.root:
+      execdir = ctx.attr.root
+  else:
+    if ctx.attr.root:
+      execdir = "%s/%s" % (execdir, ctx.attr.root)
 
   # Propagate proto deps compilation units.
   transitive_units = []
