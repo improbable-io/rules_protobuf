@@ -257,7 +257,7 @@ def _build_grpc_invocation(run, builder):
                            builder)
 
 
-def _get_mappings(root, files, label, go_prefix):
+def _get_mappings(root, files, label, go_prefix, go_importpath):
   mappings = {}
   for file in files:
     src = file.short_path
@@ -271,6 +271,10 @@ def _get_mappings(root, files, label, go_prefix):
     prefix = root + "/"
     if src.startswith(prefix):
       src = src[len(prefix):]
+
+    if go_importpath:
+        mappings[src] = go_importpath
+        continue
 
     dst = [go_prefix]
     if label.package:
@@ -292,12 +296,13 @@ def _build_importmappings(run, builder):
   """Override behavior to add plugin options before building the --go_out option"""
   ctx = run.ctx
   go_prefix = run.data.go_prefix or run.lang.go_prefix
+  go_importpath = run.data.go_importpath or run.lang.go_importpath
   opts = []
 
   # Build the list of import mappings.  Start with any configured on
   # the rule by attributes.
   mappings = run.lang.importmap + run.data.importmap
-  mappings += _get_mappings(ctx.attr.root, run.data.protos, run.data.label, go_prefix)
+  mappings += _get_mappings(ctx.attr.root, run.data.protos, run.data.label, go_prefix, go_importpath)
 
   # Then add in the transitive set from dependent rules.
   for unit in run.data.transitive_units:
@@ -554,6 +559,7 @@ def _proto_compile_impl(ctx):
     label = ctx.label,
     workspace_name = ctx.workspace_name,
     go_prefix = go_prefix,
+    go_importpath = ctx.attr.go_importpath,
     go_package = ctx.attr.go_package,
     execdir = execdir,
     protos = protos,
