@@ -11,7 +11,6 @@ def _file_endswith(file, suffix_list):
       return True
   return False
 
-
 def _capitalize(s):
   """Capitalize a string
   Args:
@@ -21,7 +20,6 @@ def _capitalize(s):
   """
   return s[0:1].upper() + s[1:]
 
-
 def _pascal_case(s):
   """Convert pascal_case -> PascalCase
   Args:
@@ -30,7 +28,6 @@ def _pascal_case(s):
     (string): The capitalized string.
   """
   return "".join([_capitalize(part) for part in s.split("_")])
-
 
 def _emit_params_file_action(ctx, path, mnemonic, cmds):
   """Helper function that writes a potentially long command list to a file.
@@ -48,7 +45,6 @@ def _emit_params_file_action(ctx, path, mnemonic, cmds):
                   content = "\n".join(["set -e"] + cmds),
                   executable = True)
   return f
-
 
 def _get_relative_dirname(run, base, file):
   """Return a dirname in the form of path segments relative to base.
@@ -96,7 +92,6 @@ def _get_relative_dirname(run, base, file):
   components = parts[len(base_parts):]
   return components
 
-
 def _get_offset_path(root, path):
   """Adjust path relative to offset"""
 
@@ -122,7 +117,6 @@ def _get_offset_path(root, path):
   depth = root.count('/') + 1
   return "../" * depth + path
 
-
 def _build_output_jar(run, builder):
   """Build a jar file for protoc to dump java classes into."""
   ctx = run.ctx
@@ -132,7 +126,6 @@ def _build_output_jar(run, builder):
   builder["outputs"] += [protojar]
   builder[name + "_jar"] = protojar
   builder[name + "_outdir"] = _get_offset_path(execdir, protojar.path)
-
 
 def _build_output_library(run, builder):
   """Build a library.js file for protoc to dump java classes into."""
@@ -147,7 +140,6 @@ def _build_output_library(run, builder):
   filename = "/".join([parts[0], run.data.label.name])
   library_path = _get_offset_path(run.data.execdir, filename)
   builder[name + "_pb_options"] += ["library=" + library_path]
-
 
 def _build_output_srcjar(run, builder):
   ctx = run.ctx
@@ -198,7 +190,6 @@ def _build_output_files(run, builder):
       pbfile = ctx.new_file("/".join(path))
       builder["outputs"] += [pbfile]
 
-
 def _build_output_libdir(run, builder):
   # This is currently csharp-specific, which needs to have the
   # output_dir positively adjusted to the package directory.
@@ -208,11 +199,9 @@ def _build_output_libdir(run, builder):
   builder[name + "_outdir"] = _get_offset_path(execdir, run.data.descriptor_set.dirname)
   _build_output_files(run, builder)
 
-
 def _build_descriptor_set(data, builder):
   """Build a list of files we expect to be generated."""
   builder["args"] += ["--descriptor_set_out=" + _get_offset_path(data.execdir, data.descriptor_set.path)]
-
 
 def _build_plugin_invocation(name, plugin, execdir, builder):
   """Add a '--plugin=NAME=PATH' argument if the language descriptor
@@ -221,7 +210,6 @@ def _build_plugin_invocation(name, plugin, execdir, builder):
   tool = _get_offset_path(execdir, plugin.path)
   builder["inputs"] += [plugin]
   builder["args"] += ["--plugin=protoc-gen-%s=%s" % (name, tool)]
-
 
 def _build_protobuf_invocation(run, builder):
   """Build a --plugin option if required for basic protobuf generation.
@@ -239,7 +227,6 @@ def _build_protobuf_invocation(run, builder):
                            run.data.execdir,
                            builder)
 
-
 def _build_grpc_invocation(run, builder):
   """Build a --plugin option if required for grpc service generation
   Args:
@@ -255,7 +242,6 @@ def _build_grpc_invocation(run, builder):
                            lang.grpc_plugin,
                            run.data.execdir,
                            builder)
-
 
 def _get_mappings(root, files, label, go_prefix, go_importpath):
   mappings = {}
@@ -287,10 +273,8 @@ def _get_mappings(root, files, label, go_prefix, go_importpath):
     mappings[src] = "/".join(dst)
   return mappings
 
-
 def _build_base_namespace(run, builder):
   pass
-
 
 def _build_importmappings(run, builder):
   """Override behavior to add plugin options before building the --go_out option"""
@@ -327,7 +311,6 @@ def _build_importmappings(run, builder):
   else:
     builder[run.lang.name + "_grpc_options"] += opts
 
-
 def _build_plugin_out(name, outdir, options, builder):
   """Build the --{lang}_out argument for a given plugin."""
   arg = outdir
@@ -344,7 +327,6 @@ def _build_plugin_out(name, outdir, options, builder):
     arg = ",".join(options) + ":" + arg
   builder["args"] += ["--%s_out=%s" % (name, arg)]
 
-
 def _build_protobuf_out(run, builder):
   """Build the --{lang}_out option"""
   lang = run.lang
@@ -357,7 +339,6 @@ def _build_protobuf_out(run, builder):
     outdir = builder.get(lang.name + "_outdir", run.outdir)
 
   _build_plugin_out(name, outdir, options, builder)
-
 
 def _build_grpc_out(run, builder):
   """Build the --{lang}_out grpc option"""
@@ -373,7 +354,6 @@ def _build_grpc_out(run, builder):
 
   _build_plugin_out(name, outdir, options, builder)
 
-
 def _get_outdir(ctx, lang, execdir):
   if ctx.attr.output_to_workspace:
     outdir = "."
@@ -383,7 +363,6 @@ def _get_outdir(ctx, lang, execdir):
   if execdir != ".":
     path += "/" + execdir
   return path
-
 
 def _get_external_root(ctx):
 
@@ -415,7 +394,6 @@ def _get_external_root(ctx):
   else:
     return "."
 
-
 def _update_import_paths(ctx, builder):
   """Updates import paths beginning with 'external' so that they point to external/."""
   execdir = _get_external_root(ctx)
@@ -431,7 +409,6 @@ def _update_import_paths(ctx, builder):
     final_imports.append(final_i)
 
   builder["imports"] = final_imports
-
 
 def _compile(ctx, unit):
 
@@ -498,7 +475,6 @@ cd $(bazel info execution_root)%s && \
     inputs = inputs,
     outputs = outputs,
   )
-
 
 def _proto_compile_impl(ctx):
 
@@ -662,47 +638,47 @@ def _proto_compile_impl(ctx):
     ),
   )
 
-proto_compile = rule(
-  implementation = _proto_compile_impl,
-  attrs = {
-    "args": attr.string_list(),
-    "langs": attr.label_list(
-      providers = ["proto_language"],
-      allow_files = False,
-      mandatory = False,
-    ),
-    "protos": attr.label_list(
-      allow_files = FileType([".proto"]),
-    ),
-    "includes": attr.string_list(),
-    "excludes": attr.string_list(),
-    "deps": attr.label_list(
-      providers = ["proto_compile_result"]
-    ),
-    "protoc": attr.label(
-      default = Label("//external:protocol_compiler"),
-      cfg = "host",
-      executable = True,
-    ),
-    "go_prefix": attr.label(
-      providers = ["go_prefix"],
-    ),
-    "go_importpath": attr.string(),
-    "go_package": attr.string(),
-    "root": attr.string(),
-    "imports": attr.string_list(),
-    "importmap": attr.string_dict(),
-    "inputs": attr.label_list(
-      allow_files = True,
-    ),
-    "pb_options": attr.string_list(),
-    "grpc_options": attr.string_list(),
-    "output_to_workspace": attr.bool(),
-    "verbose": attr.int(),
-    "with_grpc": attr.bool(default = True),
-  },
-  outputs = {
-    "descriptor_set": "%{name}.descriptor_set",
-  },
-  output_to_genfiles = True, # this needs to be set for cc-rules.
+internal_proto_compile = rule(
+    attrs = {
+        "args": attr.string_list(),
+        "langs": attr.label_list(
+            providers = ["proto_language"],
+            allow_files = False,
+            mandatory = False,
+        ),
+        "protos": attr.label_list(
+            allow_files = FileType([".proto"]),
+        ),
+        "includes": attr.string_list(),
+        "excludes": attr.string_list(),
+        "deps": attr.label_list(
+            providers = ["proto_compile_result"],
+        ),
+        "protoc": attr.label(
+            default = Label("//external:protocol_compiler"),
+            cfg = "host",
+            executable = True,
+        ),
+        "go_prefix": attr.label(
+            providers = ["go_prefix"],
+        ),
+        "go_importpath": attr.string(),
+        "go_package": attr.string(),
+        "root": attr.string(),
+        "imports": attr.string_list(),
+        "importmap": attr.string_dict(),
+        "inputs": attr.label_list(
+            allow_files = True,
+        ),
+        "pb_options": attr.string_list(),
+        "grpc_options": attr.string_list(),
+        "output_to_workspace": attr.bool(),
+        "verbose": attr.int(),
+        "with_grpc": attr.bool(default = True),
+    },
+    output_to_genfiles = True,  # this needs to be set for cc-rules.
+    outputs = {
+        "descriptor_set": "%{name}.descriptor_set",
+    },
+    implementation = _proto_compile_impl,
 )

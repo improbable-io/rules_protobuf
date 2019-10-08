@@ -1,11 +1,35 @@
-load("//protobuf:deps.bzl", PROTOBUF_DEPS = "DEPS")
-load("//cpp:deps.bzl", CPP_DEPS = "DEPS")
-load("//java:deps.bzl", JAVA_DEPS = "DEPS")
-load("//node:deps.bzl", NODE_DEPS = "DEPS")
-load("//csharp:deps.bzl", CSHARP_DEPS = "DEPS")
-load("//go:deps.bzl", GO_DEPS = "DEPS")
-load("//gogo:deps.bzl", GOGO_DEPS = "DEPS")
-load("//grpc_gateway:deps.bzl", GRPC_GATEWAY_DEPS = "DEPS")
+load(
+    "//protobuf:deps.bzl",
+    PROTOBUF_DEPS = "DEPS",
+)
+load(
+    "//cpp:deps.bzl",
+    CPP_DEPS = "DEPS",
+)
+load(
+    "//java:deps.bzl",
+    JAVA_DEPS = "DEPS",
+)
+load(
+    "//node:deps.bzl",
+    NODE_DEPS = "DEPS",
+)
+load(
+    "//csharp:deps.bzl",
+    CSHARP_DEPS = "DEPS",
+)
+load(
+    "//go:deps.bzl",
+    GO_DEPS = "DEPS",
+)
+load(
+    "//gogo:deps.bzl",
+    GOGO_DEPS = "DEPS",
+)
+load(
+    "//grpc_gateway:deps.bzl",
+    GRPC_GATEWAY_DEPS = "DEPS",
+)
 
 def _md_link(label, href):
     return "[%s](%s)" % (label, href)
@@ -156,11 +180,11 @@ def _proto_dependencies_impl(ctx):
         files = depset(files),
     )
 
-proto_dependencies = rule(
-    implementation = _proto_dependencies_impl,
+internal_proto_dependencies = rule(
     attrs = {
         "format": attr.string(
             default = "markdown",
         ),
-    }
+    },
+    implementation = _proto_dependencies_impl,
 )

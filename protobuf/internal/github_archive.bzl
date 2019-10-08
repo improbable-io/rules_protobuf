@@ -1,4 +1,4 @@
-def github_archive(name, org, repo, commit, **kwargs):
+def github_archive_impl(name, org, repo, commit, **kwargs):
     url = "https://github.com/{org}/{repo}/archive/{commit}.zip".format(
         org = org,
         repo = repo,

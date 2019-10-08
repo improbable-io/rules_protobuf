@@ -38,14 +38,12 @@ def _proto_language_impl(ctx):
         ),
     )
 
-
 proto_language_attrs = {
     "output_to_workspace": attr.bool(),
     "output_to_jar": attr.bool(),
     "output_to_library": attr.bool(),
     "output_to_libdir": attr.bool(),
     "output_file_style": attr.string(),
-
     "supports_pb": attr.bool(default = True),
     "pb_file_extensions": attr.string_list(),
     "pb_options": attr.string_list(),
@@ -80,10 +78,9 @@ proto_language_attrs = {
     "importmap": attr.string_dict(),
 }
 
-
-proto_language = rule(
-    implementation = _proto_language_impl,
+internal_proto_language = rule(
     attrs = proto_language_attrs,
+    implementation = _proto_language_impl,
 )
 
 def _proto_language_deps_impl(ctx):
@@ -111,8 +108,7 @@ def _proto_language_deps_impl(ctx):
         files = depset(deps),
     )
 
-proto_language_deps = rule(
-    implementation = _proto_language_deps_impl,
+internal_proto_language_deps = rule(
     attrs = {
         "langs": attr.label_list(
             providers = ["proto_language"],
@@ -122,7 +118,9 @@ proto_language_deps = rule(
         "file_extensions": attr.string_list(mandatory = True),
         "compile_deps": attr.bool(default = True),
         "runtime_deps": attr.bool(default = False),
-    }
+    },
+    implementation = _proto_language_deps_impl,
 )
+
 """Aggregates the deps named in pb_ and grpc_ proto_languages.
 """

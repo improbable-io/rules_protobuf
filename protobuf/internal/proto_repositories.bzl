@@ -1,7 +1,7 @@
 load("//protobuf:internal/require.bzl", "require")
 load("//protobuf:deps.bzl", "DEPS")
 
-def proto_repositories(excludes = [],
+def proto_repositories_impl(excludes = [],
                        lang_deps = {},
                        lang_requires = [],
                        protobuf_deps = DEPS,
